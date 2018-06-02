@@ -14,11 +14,13 @@ mongoClient.connect('mongodb://ehsan:qwerty@ds119080.mlab.com:19080/ehsandb',(er
 	app.listen(3000,'0.0.0.0');
 console.log("example app running");	
 })
+
 app.get('/', (req,res) =>{
     db.collection(collectionName).find().toArray((err, result)=>{
         res.send(result);
     })
 })
+
 app.get('/:id', (req, res) =>{
     if(objectID.isValid(req.params.id)== false)
         return res.status(400).send("Bad Request");
@@ -32,6 +34,7 @@ app.get('/:id', (req, res) =>{
 
     })
 })
+
 app.post('/', (req,res) =>{
 
     db.collection(collectionName).find({
@@ -51,7 +54,8 @@ app.post('/', (req,res) =>{
 
     })
 })
-app.put('/:id', function(req, res) {
+
+app.put('/:id', (req, res) =>{
     db.collection(collectionName)
         .findOneAndUpdate({
             "_id": objectID(req.params.id)
@@ -79,27 +83,28 @@ app.put('/:id', function(req, res) {
     res.send(req.body);
 })
 
-app.patch('/users/:id', function(req, res) {
+app.patch('/users/:id', (req, res) => {
     db.collection(collectionName)
         .update({
             "_id": objectID(req.params.id)
         }, {
             $set: req.body
         });
-    res.redirect(303,req.baseUrl+ "/");
+    res.redirect(303,req.baseUrl+ "/"+ req.params.id);
 })
 
-app.delete('/:id', function(req, res) {
+app.delete('/:id', (req, res)=> {
     db.collection(collectionName).remove({
         "_id": ObjectID(req.params.id)
     });
     res.redirect('/');
 })
 
-app.delete('/', function(req, res) {
+app.delete('/', (req, res)=> {
     db.collection(collectionName).remove({});
     res.redirect('/');
 })
-app.all('*',function(req,res){
+
+app.all('*',(req,res) =>{
     res.status(404).send("ERROR 400 Not Found!!!");
 })
