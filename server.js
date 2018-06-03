@@ -4,11 +4,12 @@ const bodyparser = require('body-parser');
 app.use(bodyparser.json());
 app.use(bodyparser.raw({extended: true}));
 
-var db;
-const mongoClient = require('mongodb').MongoClient;
-var objectID = require('mongodb').ObjectID;
+let db;
+const { MongoClient } = require('mongodb');
+const { ObjectID } = require('mongodb');
 const collectionName = 'mobileTest'
-mongoClient.connect('mongodb://ehsan:qwerty@ds119080.mlab.com:19080/ehsandb',(err, client)=>{
+const { dburl } = require('./dbconfig');
+MongoClient.connect( dburl ,(err, client)=>{
 	if(err) return console.log(err);
 	db = client.db('ehsandb');
 	app.listen(3000,'0.0.0.0');
@@ -22,10 +23,10 @@ app.get('/', (req,res) =>{
 })
 
 app.get('/:id', (req, res) =>{
-    if(objectID.isValid(req.params.id)== false)
+    if(ObjectID.isValid(req.params.id)== false)
         return res.status(400).send("Bad Request");
-    db.collection(collectionName).find({
-        _id: objectID(req.params.id)
+    db.collection(collectionName2).find({
+        _id: ObjectID(req.params.id)
     }).toArray((err, result)=>{
             if(result[0]!=null)
                 res.send(result);
@@ -56,9 +57,12 @@ app.post('/', (req,res) =>{
 })
 
 app.put('/:id', (req, res) =>{
+     if(ObjectID.isValid(req.params.id)== false)
+        return res.status(400).send("Bad Request");
+    const { params: { id } } = req;
     db.collection(collectionName)
         .findOneAndUpdate({
-            "_id": objectID(req.params.id)
+            "_id": ObjectID(req.params.id)
         }, {
             $set: {
                 "name": req.body.name,
@@ -69,7 +73,7 @@ app.put('/:id', (req, res) =>{
         /*
     db.collection(collectionName)
         .findOneAndUpdate({
-            "_id": objectID(req.params.id)
+            "_id": ObjectID(req.params.id)
         }, {
             $unset: {
                 "name": 0,
@@ -86,7 +90,7 @@ app.put('/:id', (req, res) =>{
 app.patch('/users/:id', (req, res) => {
     db.collection(collectionName)
         .update({
-            "_id": objectID(req.params.id)
+            "_id": ObjectID(req.params.id)
         }, {
             $set: req.body
         });
@@ -106,5 +110,6 @@ app.delete('/', (req, res)=> {
 })
 
 app.all('*',(req,res) =>{
-    res.status(404).send("ERROR 400 Not Found!!!");
+    res.status(404).send("ERROR 400!!!");
 })
+
